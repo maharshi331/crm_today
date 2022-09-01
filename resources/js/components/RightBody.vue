@@ -40,6 +40,7 @@
                                 src="../images/del.png"
                                 @click="delToday(task.taskId)"
                             />
+                            <button @click="Approved(task.taskId)">{{ done }}</button>
                         </div>
                     </div>
                 </li>
@@ -94,6 +95,7 @@ export default {
             todaytasks: [],
             upcoming: [],
             newTask: "",
+            done: ""
         };
     },
     created() {
@@ -195,6 +197,10 @@ export default {
                         );
                     });
             }
+        },
+        Approved(taskId) {
+
+            this.done = "approved";
         },
     },
 };

@@ -5384,7 +5384,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       todaytasks: [],
       upcoming: [],
-      newTask: ""
+      newTask: "",
+      done: ""
     };
   },
   created: function created() {
@@ -5512,6 +5513,9 @@ __webpack_require__.r(__webpack_exports__);
           });
         });
       }
+    },
+    Approved: function Approved(taskId) {
+      this.done = "approved";
     }
   }
 });
@@ -5738,7 +5742,13 @@ var render = function render() {
           return _vm.delToday(task.taskId);
         }
       }
-    })])])]);
+    }), _vm._v(" "), _c("button", {
+      on: {
+        click: function click($event) {
+          return _vm.Approved(task.taskId);
+        }
+      }
+    }, [_vm._v(_vm._s(_vm.done))])])])]);
   }), 0)]), _vm._v(" "), _c("div", {
     staticClass: "upcoming"
   }, [_vm._m(2), _vm._v(" "), _c("form", {
