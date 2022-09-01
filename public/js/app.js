@@ -5382,7 +5382,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      todayTask: [],
+      todaytasks: [],
       upcoming: [],
       newTask: ""
     };
@@ -5420,13 +5420,14 @@ __webpack_require__.r(__webpack_exports__);
         };
         fetch("/api/upcoming", {
           method: "post",
-          header: {
+          headers: {
             "content-type": "application/json"
           },
           body: JSON.stringify(newTask)
         }).then(function (response) {
           return _this2.upcoming.push(newTask);
         });
+        this.newTask = "";
       }
     },
     delUpcoming: function delUpcoming(taskId) {
@@ -5448,11 +5449,11 @@ __webpack_require__.r(__webpack_exports__);
     checkUpcoming: function checkUpcoming(taskId) {
       var _this4 = this;
 
-      if (this.todayTask.length > 4) {
+      if (this.todaytasks.length > 4) {
         alert("Please complete exisiting task");
         window.location.href = "/";
       } else {
-        addDailytask(taskId);
+        this.addDailytask(taskId);
         fetch("/api/upcoming/".concat(taskId), {
           method: "delete"
         }).then(function (res) {
@@ -5465,12 +5466,52 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     },
-    fetchTodayTask: function fetchTodayTask() {},
+    fetchTodayTask: function fetchTodayTask() {
+      var _this5 = this;
+
+      fetch("/api/dailytask").then(function (res) {
+        return res.json();
+      }).then(function (_ref4) {
+        var data = _ref4.data;
+        _this5.todaytasks = data;
+      })["catch"](function (error) {
+        return console.log(error);
+      });
+    },
     addDailytask: function addDailytask(taskId) {
-      var task = this.upcoming.filter(function (_ref4) {
-        var id = _ref4.taskId;
-        return id == task;
+      var _this6 = this;
+
+      var task = this.upcoming.filter(function (_ref5) {
+        var id = _ref5.taskId;
+        return id == taskId;
       })[0];
+      fetch("/api/dailytask", {
+        method: "post",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(task)
+      }).then(function () {
+        return _this6.todaytasks.unshift(task);
+      })["catch"](function (error) {
+        return console.log(error);
+      });
+    },
+    delToday: function delToday(taskId) {
+      var _this7 = this;
+
+      if (confirm("are you sure?")) {
+        fetch("/api/dailytask/".concat(taskId), {
+          method: "delete"
+        }).then(function (res) {
+          return res.json();
+        }).then(function () {
+          _this7.todaytasks = _this7.todaytasks.filter(function (_ref6) {
+            var id = _ref6.taskId;
+            return id !== taskId;
+          });
+        });
+      }
     }
   }
 });
@@ -5656,7 +5697,49 @@ var render = function render() {
     attrs: {
       id: "right"
     }
-  }, [_c("h1", [_vm._v("Development Crm")]), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("p", [_vm._v("\n        lorem ipsum dolor sit am lorem lorem ipsum dolor sit am lorem lorem\n        ipsum dolor sit am lorem ipsum dolor sit am lorem lorem ipsum dolor\n        sit am lorem lorem ipsum dolor setInnerBailoutReason lorem ipsum\n        dolor sit am lorem ipsum dolor\n    ")]), _vm._v(" "), _vm._m(1), _vm._v(" "), _c("div", {
+  }, [_c("h1", [_vm._v("Development Crm")]), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("p", [_vm._v("\n        lorem ipsum dolor sit am lorem lorem ipsum dolor sit am lorem lorem\n        ipsum dolor sit am lorem ipsum dolor sit am lorem lorem ipsum dolor\n        sit am lorem lorem ipsum dolor setInnerBailoutReason lorem ipsum\n        dolor sit am lorem ipsum dolor\n    ")]), _vm._v(" "), _c("div", {
+    staticClass: "upcoming"
+  }, [_vm._m(1), _vm._v(" "), _c("ul", {
+    staticClass: "tasks-list"
+  }, _vm._l(_vm.todaytasks, function (task) {
+    return _c("li", {
+      key: task.id
+    }, [_c("div", {
+      staticClass: "info"
+    }, [_c("div", {
+      staticClass: "left"
+    }, [_c("lable", {
+      staticClass: "myCheckbox"
+    }, [_c("input", {
+      attrs: {
+        type: "checkbox",
+        name: "test"
+      },
+      domProps: {
+        checked: task.completed
+      },
+      on: {
+        change: function change($event) {
+          return _vm.updateTodayTask(task.taskId);
+        }
+      }
+    }), _vm._v(" "), _c("span")]), _vm._v(" "), _c("h4", [_vm._v(_vm._s(task.title))])], 1), _vm._v(" "), _c("div", {
+      staticClass: "right"
+    }, [_c("img", {
+      attrs: {
+        src: __webpack_require__(/*! ../images/edit.png */ "./resources/js/images/edit.png")
+      }
+    }), _vm._v(" "), _c("img", {
+      attrs: {
+        src: __webpack_require__(/*! ../images/del.png */ "./resources/js/images/del.png")
+      },
+      on: {
+        click: function click($event) {
+          return _vm.delToday(task.taskId);
+        }
+      }
+    })])])]);
+  }), 0)]), _vm._v(" "), _c("div", {
     staticClass: "upcoming"
   }, [_vm._m(2), _vm._v(" "), _c("form", {
     attrs: {
@@ -5743,8 +5826,6 @@ var staticRenderFns = [function () {
       _c = _vm._self._c;
 
   return _c("div", {
-    staticClass: "task"
-  }, [_c("div", {
     staticClass: "add-task"
   }, [_c("h2", [_vm._v("Today's Task")]), _vm._v(" "), _c("div", {
     staticClass: "add-action"
@@ -5752,9 +5833,7 @@ var staticRenderFns = [function () {
     attrs: {
       src: __webpack_require__(/*! ../images/add.png */ "./resources/js/images/add.png")
     }
-  })])]), _vm._v(" "), _c("ul", {
-    staticClass: "tasks-list"
-  })]);
+  })])]);
 }, function () {
   var _vm = this,
       _c = _vm._self._c;

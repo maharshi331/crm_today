@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Upcoming;
 use App\Models\Today;
 use App\Http\Resources\UpcomingResource;
+use App\Http\Resources\TodayTaskResource;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,12 @@ use App\Http\Resources\UpcomingResource;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
      return $request->user();
 });
+
+Route::get('/dailytask', function () {
+$task = Today::all();
+return TodayTaskResource::collection($task);
+});
+
 
 Route::get('/upcoming',function(){
     $upcoming = Upcoming::all();
@@ -49,6 +56,12 @@ Route::delete('/upcoming/{taskId}',function($taskId){
     return 204;
 });
 
+
+Route::delete('/dailytask/{taskId}',function($taskId){
+
+    DB::table('todays')->where('taskId',$taskId)->delete();
+    return 204;
+});
 //dailttask
 
 Route::post('/dailytask',function( Request $request){
